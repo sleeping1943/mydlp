@@ -37,12 +37,20 @@ namespace slp{namespace script{
     class var {
         public: 
             var();
+            var(int i);
+            var(const char* pstr);
+            var(const std::string& str);
+            var(const varray& arr);
+            var(const vmap& m);
+
             ~var();
             var(const var& that);
             var& operator = (const var& that);
             bool operator < (const var& that) const;
             var& operator = (const int& i);
             var& operator = (const std::string& str);
+            var& operator = (const varray& arr);
+            var& operator = (const vmap& m);
             friend std::ostream& operator << (std::ostream& os, const var& that);
 
             inline LUA_TYPE type()const { return m_type; };

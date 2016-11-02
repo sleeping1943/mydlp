@@ -7,3 +7,4 @@ local func = function (str)
 
 
 print("hello lua!")
+f.test()

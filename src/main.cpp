@@ -9,16 +9,7 @@
 ************************************/
 #include <iostream>
 #include <string>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-    #include <lua.h>
-    #include <lualib.h>
-    #include <lauxlib.h>
-#ifdef __cplusplus
-}
-#endif
+#include "lua_engine.h"
 #include "var.h"
 
 using std::cout;
@@ -26,12 +17,21 @@ using std::endl;
 using std::string;
 using slp::script::var;
 
+int test(lua_State* L) {
+    cout << "test" << endl;
+    return 0;
+}
+extern "C" luaL_reg m[] =  {
+        {"test",test},
+        {NULL,NULL}
+    };
+
 int main(int argc,char** argv) {
     if (2 != argc) {
         cout << "Useage: testlua <filename> " << endl;
         return -1;
     } 
-#if 0
+#if 1
     lua_State *L = luaL_newstate();
     if (!L) {
         cout << "luaL_newstate error!" << endl; 
@@ -43,6 +43,7 @@ int main(int argc,char** argv) {
      */
     luaL_openlibs(L);
 
+    slp::script::define("f",m,L);
     int ret = luaL_loadfile(L,argv[1]);
     switch (ret) {
         case LUA_ERRSYNTAX:
@@ -59,26 +60,29 @@ int main(int argc,char** argv) {
     
     lua_pcall(L,0,0,0);
 #endif
+
+
+#if 0
     {
-            using slp::script::varray;
-            varray arr;
-            std::string str = "test ";
-            for (int i=0; i < 3; ++i) {
-                var tmp;
-                str += std::to_string(i); 
-                tmp = str; 
-                tmp.print_type();
-                cout << "before\n";
-                var v(tmp);
-                cout << "after\n";
-                arr.push_back(tmp);
-            }
-#if 1
-            for (const auto& t : arr) {
-                    std::cout << "v:" << t << endl; 
-            }
-#endif
+        using slp::script::varray;
+        varray arr;
+        std::string str = "test ";
+        for (int i=0; i < 3; ++i) {
+            str += std::to_string(i); 
+            arr.push_back(var(str));
+        }
+        for (const auto& t : arr) {
+            std::cout << "v:" << t << endl; 
+        }
+
+        var v_arr = arr;
+        for (const auto& t : v_arr.get_array()) {
+            std::cout << "v_arr:" << t << endl; 
+        }
+
+        var v2 = 1;
     }
+#endif
 
     getchar();
 	return 0;

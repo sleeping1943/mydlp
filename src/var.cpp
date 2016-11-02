@@ -22,6 +22,61 @@ namespace slp{namespace script{
             init(); 
         }
 
+
+        var::var(int i) {
+            cout << "\033[31m调用构造函数var(int i)!\033[m" << endl;
+            init(); 
+            m_type = t_int;
+            this->m_number = i;
+        } 
+
+        var::var(const char* pstr) {
+            cout << "\033[31m调用构造函数var(const char* pstr)!\033[m" << endl;
+            init(); 
+            m_type = t_str;
+            m_content = new std::string;
+            m_content->append(pstr);
+        }
+
+        var::var(const std::string& str) {
+            cout << "\033[31m调用构造函数var(const string& str)!\033[m" << endl;
+            init(); 
+            m_type = t_str;
+            m_content = new std::string;
+            *m_content = str;
+        }
+
+
+        var::var(const varray& arr) {
+            cout << "\033[31m调用构造函数var(const varray& arr)!\033[m" << endl;
+            init();
+            m_type = t_array;
+            if (isinit && m_array) {
+                delete m_array;
+                m_array = NULL;
+            }
+
+            m_array = new varray;
+            for (const auto& t : arr) {
+                m_array->push_back(t);
+            }
+        }
+
+        var::var(const vmap& m) {
+            cout << "\033[31m调用构造函数var(const vmap& m)!\033[m" << endl;
+            init(); 
+            m_type = t_map;
+            if (isinit && m_map) {
+                delete m_map;
+                m_map = NULL;
+            }
+
+            m_map = new vmap;
+            for (const auto& t : m) {
+                m_map->insert(std::pair<var,var>(t.first,t.second)); 
+            }
+        }
+
         var::~var() {
             cout << "\033[31m~var()调用析构函数！\033[m" << endl;
             clear();
@@ -103,6 +158,40 @@ namespace slp{namespace script{
             return *this;
         }
 
+        
+        var& var::operator = (const varray& arr) {
+            if (t_array != m_type && t_unknow != m_type) {
+                throw invalid_exception("此对象不是array类型，也不是unknow类型!"); 
+            }
+
+            if (isinit && m_array) {
+                delete m_array;
+                m_array = NULL;
+            }
+
+            m_array = new varray;
+            for (const auto& t : arr) {
+                m_array->push_back(t); 
+            }
+            return *this; 
+        }
+
+        var& var::operator = (const vmap& m) {
+            if (t_map != m_type && t_unknow != m_type) {
+                throw invalid_exception("此对象不是map类型，也不是unknow类型!"); 
+            }
+
+            if (isinit && m_map) {
+                delete m_map;
+                m_map = NULL;
+            }
+
+            m_map = new vmap;
+            for (const auto& t : m) {
+                m_map->insert(std::pair<var,var>(t.first,t.second)); 
+            }
+            return *this;
+        }
 
         std::ostream& operator << (std::ostream& os, const var& that) {
             switch (that.m_type) {
