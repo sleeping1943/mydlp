@@ -15,27 +15,62 @@ namespace slp{namespace script{
         lua_setglobal(L,name.c_str());
     }
 
+    var _lua2var(lua_State* L,int index) {
+        switch (lua_type(L,index)) {
+            case LUA_TNUMBER:
+                return var((int)lua_tointeger(L,index));
+                break;
+            case LUA_TSTRING: 
+                return var(lua_tostring(L,index));
+                break;
+            case LUA_TBOOLEAN:
+                return var(lua_toboolean(L,index));
+                break;
+            case LUA_TTABLE:{
+                /*
+                 *递归遍历lua的table
+                 */
+                vmap v;
+                lua_pushnil(L);
+
+                while (lua_next(L,index) != 0) {
+                    v.insert(std::pair<var,var>(_lua2var(L,-2),_lua2var(L,-1)));  
+                    lua_pop(L,1);
+                }
+                return v;
+            }
+                break;
+            case LUA_TNIL:
+                break;
+            case LUA_TUSERDATA:
+            case LUA_TLIGHTUSERDATA:
+            case LUA_TTHREAD:
+            case LUA_TFUNCTION:
+            default:
+                break;
+        } 
+        return var();
+    }
+
     varray lua2var (lua_State* L) {
         varray v;  
         int i = lua_gettop(L);
         for (; i > 0; --i) {
-            switch (lua_type(L,-1)) {
+            switch (lua_type(L,i)) {
                 case LUA_TNIL:
                     v.push_back(var(0));
                     break;
                 case LUA_TNUMBER:
-                    v.push_back(var((int)lua_tointeger(L,-1)));
+                    v.push_back(var((int)lua_tointeger(L,i)));
                     break;
                 case LUA_TBOOLEAN:
-                    v.push_back(var((bool)lua_toboolean(L,-1)));
+                    v.push_back(var((bool)lua_toboolean(L,i)));
                     break;
                 case LUA_TSTRING:
-                    v.push_back(var(lua_tostring(L,-1)));
+                    v.push_back(var(lua_tostring(L,i)));
                     break;
                 case LUA_TTABLE:
-                    /*
-                     *TODO
-                     */
+                    v.push_back(_lua2var(L,i));
                     break;
                 case LUA_TUSERDATA:
                     /*

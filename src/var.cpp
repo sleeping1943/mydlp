@@ -219,6 +219,11 @@ namespace slp{namespace script{
             return *this;
         }
 
+
+        bool var::operator != (const var& that) {
+            return this != &that;
+        }
+
         std::ostream& operator << (std::ostream& os, const var& that) {
             switch (that.m_type) {
                 case t_int:

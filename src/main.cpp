@@ -18,23 +18,6 @@ using std::string;
 using slp::script::var;
 using slp::script::varray;
 
-/*
- *template <class T>
- *int test(lua_State* L) {
- *    cout << "test" << endl;
- *    T* p = new T;
- *    *p = "This type of T is string!";
- *    cout << *p << endl;
- *    delete p;
- *    p = NULL;
- *    return 0;
- *}
- *luaL_Reg m[] =  {
- *        {"test",test<string>},
- *        {NULL,NULL}
- *    };
- */
-
 varray testv (varray arg,lua_State* L) {
     varray v;
     for (const var& tv : arg) {

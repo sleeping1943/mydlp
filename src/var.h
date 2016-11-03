@@ -54,6 +54,7 @@ namespace slp{namespace script{
             var& operator = (const std::string& str);
             var& operator = (const varray& arr);
             var& operator = (const vmap& m);
+            bool operator != (const var& that);
             friend std::ostream& operator << (std::ostream& os, const var& that);
 
             inline LUA_TYPE type()const { return m_type; };
