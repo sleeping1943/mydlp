@@ -16,15 +16,41 @@ using std::cout;
 using std::endl;
 using std::string;
 using slp::script::var;
+using slp::script::varray;
 
-int test(lua_State* L) {
-    cout << "test" << endl;
-    return 0;
+/*
+ *template <class T>
+ *int test(lua_State* L) {
+ *    cout << "test" << endl;
+ *    T* p = new T;
+ *    *p = "This type of T is string!";
+ *    cout << *p << endl;
+ *    delete p;
+ *    p = NULL;
+ *    return 0;
+ *}
+ *luaL_Reg m[] =  {
+ *        {"test",test<string>},
+ *        {NULL,NULL}
+ *    };
+ */
+
+varray testv (varray arg,lua_State* L) {
+    varray v;
+    for (const var& tv : arg) {
+        tv.print_type();
+        cout << tv << endl;
+        std::string str = "testv over!";
+        str += tv.get_type_str();
+        v.push_back(var(str));
+    }
+    return v;
 }
-extern "C" luaL_reg m[] =  {
-        {"test",test},
-        {NULL,NULL}
-    };
+
+luaL_Reg mv[] = {
+    {"testv",slp::script::lfun<testv>},
+    {NULL,NULL}
+};
 
 int main(int argc,char** argv) {
     if (2 != argc) {
@@ -43,7 +69,7 @@ int main(int argc,char** argv) {
      */
     luaL_openlibs(L);
 
-    slp::script::define("f",m,L);
+    slp::script::define("f",mv,L);
     int ret = luaL_loadfile(L,argv[1]);
     switch (ret) {
         case LUA_ERRSYNTAX:

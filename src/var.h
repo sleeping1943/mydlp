@@ -21,8 +21,9 @@ namespace slp{namespace script{
         t_int,
         t_str,
         t_bin,
-        t_array,
         t_map,
+        t_bool,
+        t_array,
         t_unknow
     }LUA_TYPE;
 
@@ -38,6 +39,7 @@ namespace slp{namespace script{
         public: 
             var();
             var(int i);
+            var(bool b);
             var(const char* pstr);
             var(const std::string& str);
             var(const varray& arr);
@@ -48,16 +50,19 @@ namespace slp{namespace script{
             var& operator = (const var& that);
             bool operator < (const var& that) const;
             var& operator = (const int& i);
+            var& operator = (const bool& i);
             var& operator = (const std::string& str);
             var& operator = (const varray& arr);
             var& operator = (const vmap& m);
             friend std::ostream& operator << (std::ostream& os, const var& that);
 
             inline LUA_TYPE type()const { return m_type; };
+            std::string get_type_str()const;
             void print_type() const;
 
             inline void init () {
                 isinit = true;
+                m_bool = false;
                 m_number = 0;
                 m_content = NULL;
                 m_array = NULL;
@@ -66,17 +71,43 @@ namespace slp{namespace script{
             }
 
             void clear();
-            int get_number()const { return m_number; };
-            std::string get_bin()const { return *m_content; };
-            std::string get_str()const { return *m_content; };
-            std::vector<var>& get_array() const { return *m_array; };
-            std::map<var,var>& get_map() const { return *m_map; };
+            inline int get_number()const { return m_number; };
+            inline bool get_bool() const { return m_bool; }
+            inline std::string get_bin()const { 
+                    if (isinit && m_content)
+                        return *m_content; 
+                    return "";
+            };
+            inline std::string get_str()const { 
+                    if (isinit && m_content)
+                        return *m_content; 
+                    return "";
+            };
+            inline std::vector<var>& get_array() const { 
+                    if (isinit && m_array) {
+                        ; 
+                    } else {
+                        varray v;
+                        *m_array = v;
+                    }
+                    return *m_array;
+            };
+            inline std::map<var,var>& get_map() const {
+                    if (isinit && m_map) {
+                        ;
+                    } else {
+                        vmap m;
+                        *m_map = m;
+                    }
+                    return *m_map; 
+            };
 
             /*
              *void push_back(const var& v);
              */
         private:
             bool isinit;
+            bool m_bool;
             int m_number;
             std::string *m_content;
             std::vector<var> *m_array;

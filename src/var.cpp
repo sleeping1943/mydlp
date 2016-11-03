@@ -30,6 +30,14 @@ namespace slp{namespace script{
             this->m_number = i;
         } 
 
+
+        var::var(bool b) {
+            cout << "\033[31m调用构造函数var(bool b)!\033[m" << endl;
+            init(); 
+            m_type = t_bool;
+            this->m_bool = b;
+        }
+
         var::var(const char* pstr) {
             cout << "\033[31m调用构造函数var(const char* pstr)!\033[m" << endl;
             init(); 
@@ -78,7 +86,9 @@ namespace slp{namespace script{
         }
 
         var::~var() {
-            cout << "\033[31m~var()调用析构函数！\033[m" << endl;
+            cout << "\033[31m~var()调用析构函数！";
+            print_type();
+            cout << "\033[m" << endl;
             clear();
         }
 
@@ -103,6 +113,9 @@ namespace slp{namespace script{
                     }
                     m_content = new std::string;
                     *m_content = that.get_bin();
+                    break;
+                case t_bool:
+                    this->m_bool = that.m_bool;
                     break;
                 case t_array: 
                     if (isinit && m_array) {
@@ -140,13 +153,24 @@ namespace slp{namespace script{
 
         var& var::operator = (const int& i) {
             cout << "\033[31m调用operator=(int)函数！\033[m" << endl;
+            clear();
             this->m_type = t_int; 
             this->m_number = i;
             return *this;
         }
 
+
+        var& var::operator = (const bool& b) {
+            cout << "\033[31m调用operator=(bool)函数！\033[m" << endl;
+            clear();
+            this->m_type = t_bool; 
+            this->m_bool = b;
+            return *this; 
+        }
+
         var& var::operator = (const std::string& str) {
             cout << "\033[31m调用operator=(string)函数！\033[m" << endl;
+            clear();
             this->m_type = t_str;
             if (m_content) {
                 delete m_content; 
@@ -169,6 +193,7 @@ namespace slp{namespace script{
                 m_array = NULL;
             }
 
+            clear();
             m_array = new varray;
             for (const auto& t : arr) {
                 m_array->push_back(t); 
@@ -186,6 +211,7 @@ namespace slp{namespace script{
                 m_map = NULL;
             }
 
+            clear();
             m_map = new vmap;
             for (const auto& t : m) {
                 m_map->insert(std::pair<var,var>(t.first,t.second)); 
@@ -211,6 +237,9 @@ namespace slp{namespace script{
                     } else {
                         os << "{null}";
                     }
+                    break;
+                case t_bool:
+                    os << that.m_bool;
                     break;
                 case t_array:
                     /*
@@ -249,6 +278,9 @@ namespace slp{namespace script{
                         m_content = NULL;
                     }
                     break;
+                case t_bool:
+                    m_bool = false;
+                    break;
                 case t_array: 
                     if (isinit && m_array) {
                         delete m_array;
@@ -274,40 +306,37 @@ namespace slp{namespace script{
 
 
         void var::print_type() const {
+            cout << get_type_str();
+        }
+
+
+        std::string var::get_type_str()const {
             switch (m_type) {
                 case t_int:     
-                    cout << "{int}" << endl;
+                    return "{int}";
                     break;
                 case t_str:     
-                    cout << "{string}" << endl;
+                    return "{string}";
                     break;
                 case t_bin:     
-                    cout << "{binary}" << endl;
+                    return "{binary}";
+                    break;
+                case t_bool:
+                    return "{bool}";
                     break;
                 case t_array:     
-                    cout << "{array}" << endl;
+                    return "{array}";
                     break;
                 case t_map:     
-                    cout << "{map}" << endl;
+                    return "{map}";
                     break;
                 case t_unknow:     
                 default:
-                    cout << "{unknow}" << endl;
+                    return "{unknow}";
                     break;
             }
+
+            return "invalid type";
         }
 
-        /*
-         *void var::push_back(const var& v) {
-         *    if (t_unknow != m_type && t_array != m_type) {
-         *        throw invalid_exception("neither t_unknow nor t_array");
-         *    } else {
-         *        m_type = t_array;
-         *        if (!m_array) {
-         *            m_array = new std::vector<var>; 
-         *        }
-         *    }
-         *    m_array->push_back(v);
-         *}
-         */
 }};

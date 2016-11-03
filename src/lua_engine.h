@@ -20,12 +20,24 @@ extern "C" {
 }
 #endif
 #include <string>
-
+#include "var.h"
 
 namespace slp{namespace script{
 
     using std::string;
+    varray lua2var (lua_State* L);
+    /* *varray var2lua (lua_State* L); */
+    varray var2lua (varray v,lua_State* L);
     void define (string name,struct luaL_reg* regs,lua_State* L);
+
+    template <varray (*pfunc)(varray,lua_State*)>
+    int lfun (lua_State* L) {
+        varray v;
+        /* *v.push_back(var(1)); */
+        v = pfunc(lua2var(L),L); 
+        var2lua(v,L);
+        return v.size();
+    }
 }};
 
 
