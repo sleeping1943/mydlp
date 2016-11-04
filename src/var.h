@@ -114,6 +114,14 @@ namespace slp{namespace script{
             std::vector<var> *m_array;
             std::map<var,var> *m_map;
             LUA_TYPE m_type;
+
+            inline void print_info(std::string info,bool isprint=true) {
+                if (isprint)  {
+                    cout << "\033[31m" << info;
+                    print_type();
+                    cout << "\033[m" << endl;
+                }
+            }
     };
 
     class invalid_exception:public std::exception {

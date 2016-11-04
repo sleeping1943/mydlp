@@ -18,13 +18,13 @@ namespace slp{namespace script{
         using std::endl;
 
         var::var() { 
-            cout << "\033[31m调用构造函数!\033[m" << endl;
+            print_info("调用构造函数!",false);
             init(); 
         }
 
 
         var::var(int i) {
-            cout << "\033[31m调用构造函数var(int i)!\033[m" << endl;
+            print_info("调用构造函数var(int i)!",false);
             init(); 
             m_type = t_int;
             this->m_number = i;
@@ -32,14 +32,14 @@ namespace slp{namespace script{
 
 
         var::var(bool b) {
-            cout << "\033[31m调用构造函数var(bool b)!\033[m" << endl;
+            print_info("调用构造函数var(bool b)!",false);
             init(); 
             m_type = t_bool;
             this->m_bool = b;
         }
 
         var::var(const char* pstr) {
-            cout << "\033[31m调用构造函数var(const char* pstr)!\033[m" << endl;
+            print_info("调用构造函数var(const char* pstr)!",false);
             init(); 
             m_type = t_str;
             m_content = new std::string;
@@ -47,7 +47,7 @@ namespace slp{namespace script{
         }
 
         var::var(const std::string& str) {
-            cout << "\033[31m调用构造函数var(const string& str)!\033[m" << endl;
+            print_info("调用构造函数var(const string& str)!",false);
             init(); 
             m_type = t_str;
             m_content = new std::string;
@@ -56,7 +56,7 @@ namespace slp{namespace script{
 
 
         var::var(const varray& arr) {
-            cout << "\033[31m调用构造函数var(const varray& arr)!\033[m" << endl;
+            print_info("调用构造函数var(const varray& arr)!",false);
             init();
             m_type = t_array;
             if (isinit && m_array) {
@@ -71,7 +71,7 @@ namespace slp{namespace script{
         }
 
         var::var(const vmap& m) {
-            cout << "\033[31m调用构造函数var(const vmap& m)!\033[m" << endl;
+            print_info("调用构造函数var(const vmap& m)!",false);
             init(); 
             m_type = t_map;
             if (isinit && m_map) {
@@ -86,14 +86,12 @@ namespace slp{namespace script{
         }
 
         var::~var() {
-            cout << "\033[31m~var()调用析构函数！";
-            print_type();
-            cout << "\033[m" << endl;
+            print_info("~var()调用析构函数！",false);
             clear();
         }
 
         var::var(const var& that) {
-            cout << "\033[31m调用拷贝构造函数!\033[m" << endl;
+            print_info("调用拷贝构造函数!",false);
             init(); 
             switch (that.type()) {
                 case t_int: 
@@ -144,7 +142,7 @@ namespace slp{namespace script{
         }
 
         var& var::operator = (const var& that) {
-            cout << "\033[31m~var()调用拷贝赋值函数！\033[m" << endl;
+            print_info("operator=()调用拷贝赋值函数！",false);
             var tmp(that);
             std::swap(*this,tmp);
             return *this;
@@ -152,7 +150,7 @@ namespace slp{namespace script{
 
 
         var& var::operator = (const int& i) {
-            cout << "\033[31m调用operator=(int)函数！\033[m" << endl;
+            print_info("调用operator=(int)函数！",false);
             clear();
             this->m_type = t_int; 
             this->m_number = i;
@@ -161,7 +159,7 @@ namespace slp{namespace script{
 
 
         var& var::operator = (const bool& b) {
-            cout << "\033[31m调用operator=(bool)函数！\033[m" << endl;
+            print_info("调用operator=(bool)函数！",false);
             clear();
             this->m_type = t_bool; 
             this->m_bool = b;
@@ -169,7 +167,7 @@ namespace slp{namespace script{
         }
 
         var& var::operator = (const std::string& str) {
-            cout << "\033[31m调用operator=(string)函数！\033[m" << endl;
+            print_info("调用operator=(string)函数！",false);
             clear();
             this->m_type = t_str;
             if (m_content) {

@@ -18,6 +18,11 @@ using std::string;
 using slp::script::var;
 using slp::script::varray;
 
+
+void test_array();
+void test_get_map ();
+int test_lua_file(const char* fpath,luaL_reg* mv,lua_State** pL);
+
 varray testv (varray arg,lua_State* L) {
     varray v;
     for (const var& tv : arg) {
@@ -30,8 +35,27 @@ varray testv (varray arg,lua_State* L) {
     return v;
 }
 
+varray testm (varray arg,lua_State* L) {
+    varray v;
+    cout << "testm" << endl;
+    for (const auto& t : arg) {
+        if (slp::script::t_map == t.type()) {
+            for (const auto& tt : t.get_map()) {
+                cout << "first:" << tt.first 
+                     << " second:" << tt.second << endl;
+            }
+
+        } 
+    }
+    slp::script::vmap vm;
+    vm.insert(std::pair<var,var>("var-key","var-value"));
+    v.push_back(var(vm));
+    return v;
+}
+
 luaL_Reg mv[] = {
     {"testv",slp::script::lfun<testv>},
+    {"testm",slp::script::lfun<testm>},
     {NULL,NULL}
 };
 
@@ -40,8 +64,18 @@ int main(int argc,char** argv) {
         cout << "Useage: testlua <filename> " << endl;
         return -1;
     } 
+    lua_State* L; 
+    test_lua_file(argv[1],mv,&L);
+    /*
+     *getchar();
+     */
+	return 0;
+}
+
+int test_lua_file(const char* fpath,luaL_reg* mv,lua_State** pL) {
 #if 1
-    lua_State *L = luaL_newstate();
+    *pL = luaL_newstate();
+    lua_State* L = *pL;
     if (!L) {
         cout << "luaL_newstate error!" << endl; 
         return -2;
@@ -53,10 +87,10 @@ int main(int argc,char** argv) {
     luaL_openlibs(L);
 
     slp::script::define("f",mv,L);
-    int ret = luaL_loadfile(L,argv[1]);
+    int ret = luaL_loadfile(L,fpath);
     switch (ret) {
         case LUA_ERRSYNTAX:
-                cout << "语法错误!" << endl;
+                cout << "语法错误!" << std::string(fpath) << endl;
                 return -3;
                 break;
         case LUA_ERRMEM:
@@ -69,9 +103,26 @@ int main(int argc,char** argv) {
     
     lua_pcall(L,0,0,0);
 #endif
+    return 0;
+}
 
+void test_get_map () {
 
-#if 0
+#if 1
+    slp::script::vmap vm;
+    string str = "test-";
+    for (int i=0; i < 5; ++i) {
+        vm.insert(std::pair<var,var>(std::to_string(i),str+std::to_string(i))); 
+    }
+    var v = vm;
+    for (const auto& tv : v.get_map()) {
+        cout << "first:" << tv.first << " second:" << tv.second << endl; 
+    }
+#endif
+}
+
+void test_array() {
+#if 1
     {
         using slp::script::varray;
         varray arr;
@@ -92,7 +143,5 @@ int main(int argc,char** argv) {
         var v2 = 1;
     }
 #endif
-
-    getchar();
-	return 0;
 }
+

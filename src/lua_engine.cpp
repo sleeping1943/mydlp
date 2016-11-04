@@ -42,10 +42,10 @@ namespace slp{namespace script{
                 break;
             case LUA_TNIL:
                 break;
-            case LUA_TUSERDATA:
-            case LUA_TLIGHTUSERDATA:
             case LUA_TTHREAD:
             case LUA_TFUNCTION:
+            case LUA_TUSERDATA:
+            case LUA_TLIGHTUSERDATA:
             default:
                 break;
         } 
@@ -100,6 +100,51 @@ namespace slp{namespace script{
        return v;
      }
 
+    var _var2lua (var v,lua_State* L) {
+        switch (v.type()) {
+            case t_int:
+                lua_pushinteger(L,v.get_number()); 
+                break;
+            case t_bin:
+            case t_str:{
+                std::string str = v.get_str();
+                lua_pushlstring(L,str.c_str(),str.size());
+            }
+                break;
+            case t_bool:
+                lua_pushboolean(L,v.get_bool());
+                break;
+            case t_map:
+                /*
+                *NOTE 当key为boolean等类型时?
+                */
+                lua_newtable(L);
+                for (const auto& tv : v.get_map()) {
+                    _var2lua(tv.first,L);   /* key */
+                    _var2lua(tv.second,L);  /* value */
+                    lua_settable(L,-3);
+                }
+                break;
+            case t_array:{
+                /*
+                *NOTE 当key为boolean等类型时?
+                */
+                lua_newtable(L);
+                auto it = v.get_array().begin(); 
+                auto eit = v.get_array().end();
+                for (int i=1; it != eit; ++i,++it) {
+                    _var2lua(var(i),L); 
+                    _var2lua(*it,L);
+                    lua_settable(L,-3);
+                }
+            }
+                break;
+            default:
+                break;
+        } 
+
+        return v;
+    }
     varray var2lua (varray v,lua_State* L) {
         /* *varray v;  */
         for (const var& tv : v) {
@@ -120,11 +165,13 @@ namespace slp{namespace script{
                     /*
                      *TODO
                      */
+                    _var2lua(tv,L);
                     break;
                 case t_array:
                     /*
                      *TODO
                      */
+                    _var2lua(tv,L);
                     break;
                 default:
                     /*
